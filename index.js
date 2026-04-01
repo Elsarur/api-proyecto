@@ -42,6 +42,26 @@ app.post('/pacientes', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+app.delete('/pacientes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pool = await sql.connect(config);
+
+    const result = await pool.request()
+      .input('id', sql.Int, id)
+      .query('DELETE FROM pacientes WHERE id = @id');
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).send('Paciente no encontrado');
+    }
+
+    res.send('Paciente eliminado');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al eliminar');
+  }
+});
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
